@@ -1,0 +1,6 @@
+torch>=1.7.0
+opencv-python
+Pillow
+yolov5  # This is the YOLOv5 implementation from Ultralytics
+Flask
+numpy

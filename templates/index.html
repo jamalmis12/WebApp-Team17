@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vertebrai - Image Upload</title>
+    <style>
+        /* General Body Styling */
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #121212;  /* Dark background */
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: #ddd;  /* Light text for dark theme */
+            background: linear-gradient(135deg, #333 0%, #121212 100%); /* Subtle gradient */
+        }
+
+        /* Container Styling */
+        .container {
+            background-color: #1f1f1f;  /* Dark container background */
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.5);
+            width: 90%;
+            max-width: 800px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        /* Spine Background Curve Effect */
+        .spine-curve {
+            position: absolute;
+            top: -10%;
+            left: 0;
+            right: 0;
+            width: 100%;
+            height: 30%;
+            background: linear-gradient(to right, #00bfae, #004c3f);
+            border-radius: 50%;
+            z-index: -1;
+            animation: curveAnimation 4s infinite;
+        }
+
+        /* Animation for Curves */
+        @keyframes curveAnimation {
+            0% { transform: translateX(-100%); }
+            50% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+
+        /* Logo Styling */
+        .logo-container {
+            margin-bottom: 20px;
+        }
+
+        .logo-container img {
+            width: 150px;  /* Adjust size as needed */
+            height: auto;
+            margin-bottom: 20px;
+        }
+
+        /* Heading Styling */
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            color: #fff;  /* White text */
+        }
+
+        h2 {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            color: #ccc;  /* Lighter gray text */
+        }
+
+        /* Button Styling */
+        .upload-btn {
+            background-color: #00bfae;  /* Teal color for buttons */
+            color: white;
+            padding: 16px 32px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: transform 0.3s, background-color 0.3s ease;
+            margin: 15px 0;
+        }
+
+        .upload-btn:hover {
+            background-color: #004c3f;
+            transform: scale(1.05);
+        }
+
+        /* Page Hiding / Showing */
+        .page {
+            display: none;
+        }
+
+        .active {
+            display: block;
+        }
+
+        /* Input Fields Styling */
+        input[type="text"], input[type="password"], input[type="file"] {
+            background-color: #333;  /* Dark input field */
+            border: 1px solid #555;
+            color: #fff;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            width: 100%;
+            max-width: 350px;
+            text-align: center;
+        }
+
+        input[type="text"]:focus, input[type="password"]:focus {
+            border-color: #00bfae;
+            outline: none;
+        }
+
+        /* Back Button Styling */
+        .nav-btn {
+            background-color: #555;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+
+        .nav-btn:hover {
+            background-color: #444;
+        }
+
+        /* Result Page Styling */
+        .image-container {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .processed-image {
+            width: 80%;
+            max-width: 600px;
+            border-radius: 10px;
+        }
+
+        /* Dropdown Styling for Format Selection */
+        select {
+            background-color: #333;
+            color: #fff;
+            padding: 8px;
+            border-radius: 8px;
+            width: 150px;
+        }
+
+        option {
+            background-color: #333;
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Spine Background -->
+        <div class="spine-curve"></div>
+
+        <!-- Home Page -->
+        <div id="homePage" class="page active">
+            <div class="logo-container">
+                <!-- Add the logo image -->
+                <img src="static/images/ver.png" alt="Vertebrai Logo">
+            </div>
+            <h1>VERTEBRAI</h1>
+            <h2>Automated Keypoint Detection for Scoliosis Assessment</h2>
+            <button class="upload-btn" onclick="showLoginPage()">Go to Login</button>
+        </div>
+
+        <!-- Login Page -->
+        <div id="loginPage" class="page">
+            <h1>Login</h1>
+            <form id="loginForm">
+                <input type="text" id="username" placeholder="Enter username" required><br><br>
+                <input type="password" id="password" placeholder="Enter password" required><br><br>
+                <button type="submit" class="upload-btn">Login</button>
+            </form>
+        </div>
+
+        <!-- Image Upload Page -->
+        <div id="chooseImagePage" class="page">
+            <h1>Upload an Image</h1>
+            <form id="imageForm" action="/predict" method="post" enctype="multipart/form-data">
+                <input type="file" name="file" required>
+                <button type="submit" class="upload-btn">Submit</button>
+            </form>
+        </div>
+
+        <!-- Result Page -->
+        <div id="resultPage" class="page">
+            <h1>Result Page</h1>
+            <div id="resultImageContainer" class="image-container">
+                <h2>Processed Image with Cobb Angle Measurement</h2>
+                <img id="resultImage" class="processed-image" src="" alt="Processed Image">
+            </div>
+            
+            <!-- Format Selection and Download Section -->
+            <div id="formatSelection" class="download-section">
+                <label for="formatSelect">Select Format:</label>
+                <select id="formatSelect">
+                    <option value="png">PNG</option>
+                    <option value="jpeg">JPEG</option>
+                    <option value="jpg">JPG</option>
+                    <option value="dicom">DICOM</option>
+                </select>
+                <button id="downloadBtnResult" class="upload-btn" style="display: none;">Download Image</button>
+            </div>
+
+            <!-- Back Button -->
+            <button class="nav-btn" onclick="showChooseImagePage()">Go Back to Choose Image</button>
+        </div>
+    </div>
+
+    <script>
+        // Show the Login Page after Home Page
+        function showLoginPage() {
+            document.getElementById('homePage').classList.remove('active');
+            document.getElementById('loginPage').classList.add('active');
+        }
+
+        // Show the Image Upload Page after successful login
+        document.getElementById('loginForm').onsubmit = function(event) {
+            event.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            // Check credentials
+            if (username === 'admin' && password === 'password') {
+                document.getElementById('loginPage').classList.remove('active');
+                document.getElementById('chooseImagePage').classList.add('active');
+            } else {
+                alert('Invalid username or password');
+            }
+        };
+
+        // Show the Result Page after image submission
+        const form = document.querySelector('#imageForm');
+        form.onsubmit = async (event) => {
+            event.preventDefault();  // Prevent default form submission
+
+            const formData = new FormData(form);
+            
+            const response = await fetch('/predict', {
+                method: 'POST',
+                body: formData,
+            });
+
+            if (response.ok) {
+                const blob = await response.blob();
+                const imageUrl = URL.createObjectURL(blob);
+                
+                // Set the processed image to result page
+                document.getElementById('resultImage').src = imageUrl;
+                document.getElementById('resultPage').classList.add('active');
+                document.getElementById('chooseImagePage').classList.remove('active');
+                
+                // Show download button
+                document.getElementById('downloadBtnResult').style.display = 'inline-block';
+            } else {
+                alert('Failed to process the image');
+            }
+        };
+
+        // Show the Choose Image Page
+        function showChooseImagePage() {
+            document.getElementById('resultPage').classList.remove('active');
+            document.getElementById('chooseImagePage').classList.add('active');
+        }
+    </script>
+</body>
+</html>
